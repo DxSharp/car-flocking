@@ -5,6 +5,8 @@ from car import Car
 from math import sqrt, inf
 from operator import itemgetter
 
+from wall import Wall
+
 
 class World:
 
@@ -15,6 +17,12 @@ class World:
             self.cars: List[Car] = []
         else:
             self.cars: List[Car] = cars
+        self.walls: List[Wall] = [
+            Wall(0.0, 0.0, width, 0.0),
+            Wall(0.0, 0.0, 0.0, height),
+            Wall(width, 0.0, width, height),
+            Wall(0.0, height, width, height)
+        ]
 
     def update(self, dt: float, neighbor_count: int):
         for car in self.cars:
