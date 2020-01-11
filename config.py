@@ -11,9 +11,13 @@ Simulation (Model)
 """
 STEPS_PER_SECOND = 30
 
-CAR_COUNT = 8
+CAR_COUNT = 1
 
 NEIGHBOR_COUNT = 7
+
+# Distance to detect walls from
+WALL_RADIUS = 20
+
 
 """
 World (Model)
@@ -34,7 +38,7 @@ CAR_MAX_ACCELERATION = 5.0
 
 CAR_MAX_VELOCITY = 20.0
 
-CAR_MAX_STEERING_ANGLE = 5.0
+CAR_MAX_STEERING_ANGLE = 37.0
 
 CAR_MAX_STEERING_CHANGE = 30.0
 
@@ -60,10 +64,6 @@ WORLD_COLOR = Color('white')
 Car (View)
 """
 CAR_IMAGE_PATH = "car.png"
-
-
-
-
 
 
 

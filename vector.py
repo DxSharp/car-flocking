@@ -16,6 +16,9 @@ class Vector:
     def __mul__(self, other: float) -> 'Vector':
         return Vector(self.x * other, self.y * other)
 
+    def __eq__(self, other: 'Vector') -> bool:
+        return self.x == other.x and self.y == other.y
+
     def __str__(self) -> str:
         return '[' + str(self.x) + ', ' + str(self.y) + ']'
 
@@ -30,6 +33,9 @@ class Vector:
 
     def get_radians(self) -> float:
         return Vector.angle_reference().angle_to(self)
+
+    def change_length(self, length: float) -> 'Vector':
+        return self * length / self.get_length()
 
     def angle_to(self, other: 'Vector') -> float:
         return atan2(self.x * other.y - self.y * other.x, self.x * other.x + self.y * other.y)
