@@ -11,19 +11,19 @@ Simulation (Model)
 """
 STEPS_PER_SECOND = 30
 
-CAR_COUNT = 1
+CAR_COUNT = 10
 
 NEIGHBOR_COUNT = 7
 
 # Distance to detect walls from
 WALL_RADIUS = 20
-
+SEPARATION_RADIUS = 20
 
 """
 World (Model)
 """
-WORLD_WIDTH = 100
-WORLD_HEIGHT = 50
+WORLD_WIDTH = 200
+WORLD_HEIGHT = 100
 
 """
 Car (Model)
@@ -52,18 +52,25 @@ VIEW CONFIGURATION
 """
 Simulation (View)
 """
-PIXEL_METER_RATIO = 15
+PIXEL_METER_RATIO = 7
 
 """
 World (View)
 """
 WORLD_COLOR = Color('white')
 
+"""
+World (View)
+"""
+WALL_COLOR = Color('black')
+
 
 """
 Car (View)
 """
 CAR_IMAGE_PATH = "car.png"
+
+VECTOR_COLOR = Color('red')
 
 
 

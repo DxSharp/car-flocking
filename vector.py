@@ -34,8 +34,12 @@ class Vector:
     def get_radians(self) -> float:
         return Vector.angle_reference().angle_to(self)
 
-    def change_length(self, length: float) -> 'Vector':
-        return self * length / self.get_length()
+    def change_length(self, new_length: float) -> 'Vector':
+        length = self.get_length()
+        if length == 0.0:
+            return Vector(self.x, self.y)
+        else:
+            return self * new_length / self.get_length()
 
     def angle_to(self, other: 'Vector') -> float:
         return atan2(self.x * other.y - self.y * other.x, self.x * other.x + self.y * other.y)

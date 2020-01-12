@@ -35,8 +35,9 @@ if DEBUG:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == KEYDOWN and event.key == K_SPACE:
-            world.update(1.0 / STEPS_PER_SECOND, NEIGHBOR_COUNT, WALL_RADIUS)
-            draw_world(world, WORLD_COLOR, pygame.image.load(CAR_IMAGE_PATH), screen, PIXEL_METER_RATIO)
+            world.update(1.0 / STEPS_PER_SECOND, NEIGHBOR_COUNT, WALL_RADIUS, SEPARATION_RADIUS)
+            draw_world(world, WORLD_COLOR, WALL_COLOR, VECTOR_COLOR, pygame.image.load(CAR_IMAGE_PATH),
+                       screen, PIXEL_METER_RATIO)
             pygame.display.update()
 else:
     running = True
@@ -48,9 +49,10 @@ else:
         dt = clock.get_time() / 1000.0
         if dt > 1.0 / (STEPS_PER_SECOND - 1):
             print("Not enough time to compute the amount of steps per second in real-time")
-        world.update(dt, NEIGHBOR_COUNT, WALL_RADIUS)
+        world.update(dt, NEIGHBOR_COUNT, WALL_RADIUS, SEPARATION_RADIUS)
 
-        draw_world(world, WORLD_COLOR, pygame.image.load(CAR_IMAGE_PATH), screen, PIXEL_METER_RATIO)
+        draw_world(world, WORLD_COLOR, WALL_COLOR, VECTOR_COLOR, pygame.image.load(CAR_IMAGE_PATH),
+                   screen, PIXEL_METER_RATIO)
 
         pygame.display.update()
 

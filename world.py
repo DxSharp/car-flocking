@@ -24,9 +24,9 @@ class World:
             Wall(0.0, height, width, height)
         ]
 
-    def update(self, dt: float, neighbor_count: int, wall_radius: float):
+    def update(self, dt: float, neighbor_count: int, wall_radius: float, separation_radius: float):
         for car in self.cars:
-            car.adjust_behavior(self.get_neighbors(car, neighbor_count), self.walls, wall_radius)
+            car.adjust_behavior(self.get_neighbors(car, neighbor_count), self.walls, wall_radius, separation_radius)
         for car in self.cars:
             car.update(dt)
 
