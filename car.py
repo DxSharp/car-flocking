@@ -1,5 +1,6 @@
 from typing import List, Tuple
 
+from goal import Goal
 from vector import Vector
 from math import radians, tan, sqrt, degrees
 
@@ -30,6 +31,7 @@ class Car:
         self.max_steering_angle: float = radians(max_steering_angle)
         self.max_steering_change: float = radians(max_steering_change)
 
+
         # TODO: Remove code below this
         self.vector = Vector()
 
@@ -55,12 +57,13 @@ class Car:
         self.steering_angle = max(-self.max_steering_angle, min(new_steering_angle, self.max_steering_angle))
 
     def adjust_behavior(self, neighbors: List[Tuple['Car', float]], walls: List[Wall],
-                        wall_radius: float, separation_radius: float):
+                        wall_radius: float, separation_radius: float, goal: Goal):
         wall_force = self.wall_avoidance(walls, wall_radius)
         separation_force = self.separation(neighbors, separation_radius)
         alignment_force = self.alignment(neighbors)
         cohesion_force = self.cohesion(neighbors)
-        self.vector = cohesion_force * 0 + alignment_force * 0 + separation_force * 0 + wall_force * 1
+        goal_force = self.goal_force(goal)
+        self.vector = cohesion_force * 0 + alignment_force * 0 + separation_force * 0 + wall_force * 10 + goal_force * 1
         steering_direction = self.direction.rotate_radians(self.steering_angle)
 
         if self.vector == Vector(0, 0):
@@ -76,6 +79,10 @@ class Car:
             self.steering_change = -self.max_steering_change
         else:
             self.steering_change = self.max_steering_change
+
+    def goal_force(self, goal: Goal):
+        return Vector(goal.x - self.x, goal.y - self.y)
+
 
     def wall_avoidance(self, walls: List[Wall], wall_radius) -> 'Vector':
         resulting_force = Vector()

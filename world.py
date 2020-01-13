@@ -5,6 +5,7 @@ from car import Car
 from math import sqrt, inf
 from operator import itemgetter
 
+from goal import Goal
 from wall import Wall
 
 
@@ -15,10 +16,12 @@ class World:
         self.height: int = height
         self.cars: List[Car] = []
         self.walls: List[Wall] = []
+        self.goal: Goal = Goal(0.0, 0.0)
 
     def update(self, dt: float, neighbor_count: int, wall_radius: float, separation_radius: float):
         for car in self.cars:
-            car.adjust_behavior(self.get_neighbors(car, neighbor_count), self.walls, wall_radius, separation_radius)
+            neighbors = self.get_neighbors(car, neighbor_count)
+            car.adjust_behavior(neighbors, self.walls, wall_radius, separation_radius, self.goal)
         for car in self.cars:
             car.update(dt, self.walls)
 

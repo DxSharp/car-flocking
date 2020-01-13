@@ -65,9 +65,15 @@ World (View)
 WORLD_COLOR = Color('white')
 
 """
-World (View)
+Wall (View)
 """
 WALL_COLOR = Color('black')
+
+"""
+Goal (View)
+"""
+GOAL_COLOR = Color('blue')
+
 
 
 """

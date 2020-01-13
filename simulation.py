@@ -4,6 +4,7 @@ import pygame
 from pygame.constants import KEYDOWN, K_SPACE
 
 from config import *
+from goal import Goal
 from world import World
 from car import Car
 from world_view import draw_world
@@ -47,12 +48,18 @@ else:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                mouse_pos = pygame.mouse.get_pos()
+                goal_x = mouse_pos[0] / PIXEL_METER_RATIO
+                goal_y = WORLD_HEIGHT - mouse_pos[1] / PIXEL_METER_RATIO
+
+                world.goal = Goal(goal_x, goal_y)
         dt = clock.get_time() / 1000.0
         if dt > 1.0 / (STEPS_PER_SECOND - 1):
             print("Not enough time to compute the amount of steps per second in real-time")
         world.update(dt, NEIGHBOR_COUNT, WALL_RADIUS, SEPARATION_RADIUS)
 
-        draw_world(world, WORLD_COLOR, WALL_COLOR, VECTOR_COLOR, pygame.image.load(CAR_IMAGE_PATH),
+        draw_world(world, WORLD_COLOR, WALL_COLOR, GOAL_COLOR, VECTOR_COLOR, pygame.image.load(CAR_IMAGE_PATH),
                    screen, PIXEL_METER_RATIO)
 
         pygame.display.update()
