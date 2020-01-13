@@ -12,13 +12,13 @@ DEBUG = False
 
 world = World(WORLD_WIDTH, WORLD_HEIGHT)
 
-road_configuration(world, 50, 50)
+road_configuration(world, 50, 20)
 
 for i in range(CAR_COUNT):
     # random_x = randrange(WORLD_WIDTH)
     # random_y = randrange(WORLD_HEIGHT)
-    random_x = WORLD_WIDTH / 2.0
-    random_y = WORLD_HEIGHT / 2.0
+    random_x = WORLD_WIDTH / 4.0
+    random_y = WORLD_HEIGHT / 4.0
 
     random_angle = uniform(-CAR_MAX_STEERING_ANGLE, CAR_MAX_STEERING_ANGLE)
     new_car = Car(CAR_LENGTH, CAR_WIDTH, CAR_WHEELBASE, CAR_MAX_VELOCITY, CAR_MAX_ACCELERATION,

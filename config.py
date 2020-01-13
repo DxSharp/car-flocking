@@ -16,7 +16,7 @@ Simulation (Model)
 """
 STEPS_PER_SECOND = 30
 
-CAR_COUNT = 10
+CAR_COUNT = 1
 
 NEIGHBOR_COUNT = 7
 

@@ -46,7 +46,6 @@ class Car:
             self.x = new_x
             self.y = new_y
 
-
         self.direction = self.direction.rotate_radians(angle_change * dt)
 
         new_velocity = self.velocity + self.acceleration * dt
@@ -61,11 +60,13 @@ class Car:
         separation_force = self.separation(neighbors, separation_radius)
         alignment_force = self.alignment(neighbors)
         cohesion_force = self.cohesion(neighbors)
-        self.vector = cohesion_force * 0.5 + alignment_force * 4 + separation_force * 1 + wall_force * 1
-
+        self.vector = cohesion_force * 0 + alignment_force * 0 + separation_force * 0 + wall_force * 1
         steering_direction = self.direction.rotate_radians(self.steering_angle)
 
-        angle_dif = steering_direction.angle_to(self.vector)
+        if self.vector == Vector(0, 0):
+            angle_dif = 0
+        else:
+            angle_dif = steering_direction.angle_to(self.vector)
 
         if angle_dif > 0:
             self.steering_change = self.max_steering_change
