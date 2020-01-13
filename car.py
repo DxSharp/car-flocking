@@ -33,13 +33,20 @@ class Car:
         # TODO: Remove code below this
         self.vector = Vector()
 
-    def update(self, dt: float):
+    def update(self, dt: float, walls: List[Wall]):
         x_change = self.velocity * self.direction.x
         y_change = self.velocity * self.direction.y
         angle_change = tan(self.steering_angle) * self.velocity / self.wheelbase
 
-        self.x += x_change * dt
-        self.y += y_change * dt
+        new_x = self.x + x_change * dt
+        new_y = self.y + y_change * dt
+
+        will_collide = self.wall_collisions(walls, new_x, new_y)
+        if not will_collide:
+            self.x = new_x
+            self.y = new_y
+
+
         self.direction = self.direction.rotate_radians(angle_change * dt)
 
         new_velocity = self.velocity + self.acceleration * dt
@@ -108,3 +115,12 @@ class Car:
         x_average = x_summation / neighbor_count
         y_average = y_summation / neighbor_count
         return Vector(x_average - self.x, y_average - self.y)
+
+    def wall_collisions(self, walls: List[Wall], new_x: float, new_y: float) -> bool:
+        for wall in walls:
+            v1 = wall.perpendicular_vector(self.x, self.y)
+            v2 = wall.perpendicular_vector(new_x, new_y)
+            angle = v1.angle_to(v2)
+            if angle != 0.0:
+                return True
+        return False

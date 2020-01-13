@@ -10,25 +10,17 @@ from wall import Wall
 
 class World:
 
-    def __init__(self, width: int, height: int, cars: List[Car] = None):
+    def __init__(self, width: int, height: int):
         self.width: int = width
         self.height: int = height
-        if cars is None:
-            self.cars: List[Car] = []
-        else:
-            self.cars: List[Car] = cars
-        self.walls: List[Wall] = [
-            Wall(0.0, 0.0, width, 0.0),
-            Wall(0.0, 0.0, 0.0, height),
-            Wall(width, 0.0, width, height),
-            Wall(0.0, height, width, height)
-        ]
+        self.cars: List[Car] = []
+        self.walls: List[Wall] = []
 
     def update(self, dt: float, neighbor_count: int, wall_radius: float, separation_radius: float):
         for car in self.cars:
             car.adjust_behavior(self.get_neighbors(car, neighbor_count), self.walls, wall_radius, separation_radius)
         for car in self.cars:
-            car.update(dt)
+            car.update(dt, self.walls)
 
     def get_neighbors(self, car: Car, neighbor_count: int):
         neighbors = [(car, inf)] * neighbor_count

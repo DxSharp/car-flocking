@@ -13,6 +13,8 @@ class Wall:
         x_dif = self.x2 - self.x1
         y_dif = self.y2 - self.y1
         if x_dif == 0:
+            # x_intersection = self.x1
+            # y_intersection = y
             return Vector(x - self.x1, 0.0)
         elif y_dif == 0:
             return Vector(0.0, y - self.y1)
@@ -25,5 +27,6 @@ class Wall:
 
             x_intersection = (b_perpendicular - b_wall) / (a_wall - a_perpendicular)
             y_intersection = a_wall * x_intersection + b_wall
+
             return Vector(x - x_intersection, y - y_intersection)
 

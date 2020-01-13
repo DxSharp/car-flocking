@@ -12,6 +12,7 @@ DEBUG = False
 
 world = World(WORLD_WIDTH, WORLD_HEIGHT)
 
+road_configuration(world, 50, 50)
 
 for i in range(CAR_COUNT):
     # random_x = randrange(WORLD_WIDTH)
