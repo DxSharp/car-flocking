@@ -63,7 +63,14 @@ class Car:
         alignment_force = self.alignment(neighbors)
         cohesion_force = self.cohesion(neighbors)
         goal_force = self.goal_force(goal)
-        self.vector = cohesion_force * 0 + alignment_force * 0 + separation_force * 0 + wall_force * 10 + goal_force * 1
+
+        if wall_force != Vector(0.0, 0.0):
+            self.vector = wall_force
+        else:
+            self.vector = goal_force
+
+
+        # self.vector = cohesion_force * 0 + alignment_force * 0 + separation_force * 0 + wall_force * 4 + goal_force * 0.25
         steering_direction = self.direction.rotate_radians(self.steering_angle)
 
         if self.vector == Vector(0, 0):
@@ -86,12 +93,28 @@ class Car:
 
     def wall_avoidance(self, walls: List[Wall], wall_radius) -> 'Vector':
         resulting_force = Vector()
+        heading = self.direction.rotate_radians(self.steering_angle)
         for wall in walls:
             steering_vector = wall.perpendicular_vector(self.x, self.y)
             vector_length = steering_vector.get_length()
             if vector_length < wall_radius:
-                steering_force = steering_vector.change_length(wall_radius - vector_length)
+                rotation = steering_vector.angle_to(heading)
+                if rotation > 0.0:
+                    steering_vector = steering_vector.rotate_degrees(90)
+                else:
+                    steering_vector = steering_vector.rotate_degrees(-90)
+
+                if abs(rotation) < radians(90):
+                    steering_force = steering_vector.change_length(0)
+                else:
+                    steering_force = steering_vector.change_length(wall_radius - vector_length)
+
                 resulting_force += steering_force
+
+
+
+
+
         return resulting_force
 
     def separation(self, neighbors: List[Tuple['Car', float]], separation_radius: float) -> Vector:
