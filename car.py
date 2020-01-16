@@ -31,6 +31,7 @@ class Car:
         self.max_steering_angle: float = radians(max_steering_angle)
         self.max_steering_change: float = radians(max_steering_change)
 
+        self.overlapping_cars: List[Car] = []
 
         # TODO: Remove code below this
         self.vector = Vector()
@@ -57,20 +58,20 @@ class Car:
         self.steering_angle = max(-self.max_steering_angle, min(new_steering_angle, self.max_steering_angle))
 
     def adjust_behavior(self, neighbors: List[Tuple['Car', float]], walls: List[Wall],
-                        wall_radius: float, separation_radius: float, goal: Goal):
+                        wall_radius: float, separation_radius: float, goal: Goal, rule_weights: List[float]):
         wall_force = self.wall_avoidance(walls, wall_radius)
         separation_force = self.separation(neighbors, separation_radius)
         alignment_force = self.alignment(neighbors)
         cohesion_force = self.cohesion(neighbors)
         goal_force = self.goal_force(goal)
 
-        if wall_force != Vector(0.0, 0.0):
-            self.vector = wall_force
+        if wall_force != Vector(0.0, 0.0) and rule_weights[4] > 0:
+            self.vector = wall_force * rule_weights[4]
         else:
-            self.vector = goal_force
+            self.vector = separation_force * rule_weights[0] + alignment_force * rule_weights[1] + \
+                          cohesion_force * rule_weights[2] + goal_force * rule_weights[3]
 
 
-        # self.vector = cohesion_force * 0 + alignment_force * 0 + separation_force * 0 + wall_force * 4 + goal_force * 0.25
         steering_direction = self.direction.rotate_radians(self.steering_angle)
 
         if self.vector == Vector(0, 0):
@@ -89,7 +90,6 @@ class Car:
 
     def goal_force(self, goal: Goal):
         return Vector(goal.x - self.x, goal.y - self.y)
-
 
     def wall_avoidance(self, walls: List[Wall], wall_radius) -> 'Vector':
         resulting_force = Vector()
@@ -110,10 +110,6 @@ class Car:
                     steering_force = steering_vector.change_length(wall_radius - vector_length)
 
                 resulting_force += steering_force
-
-
-
-
 
         return resulting_force
 

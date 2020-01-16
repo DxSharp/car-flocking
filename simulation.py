@@ -5,14 +5,11 @@ from pygame.constants import KEYDOWN, K_SPACE
 
 from config import *
 from goal import Goal
-from world import World
 from world_view import draw_world
 
 DEBUG = False
 
-world = World(WORLD_WIDTH, WORLD_HEIGHT)
-
-road_scenario1(world, 50, 20)
+world = load_scenario(open_scenario)
 
 pygame.init()
 screen = pygame.display.set_mode((WORLD_WIDTH * PIXEL_METER_RATIO, WORLD_HEIGHT * PIXEL_METER_RATIO))

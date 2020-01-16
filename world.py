@@ -17,13 +17,15 @@ class World:
         self.cars: List[Car] = []
         self.walls: List[Wall] = []
         self.goal: Goal = Goal(0.0, 0.0)
+        self.rule_weights: List[float] = [0, 0, 0, 0, 0]
 
     def update(self, dt: float, neighbor_count: int, wall_radius: float, separation_radius: float):
         for car in self.cars:
             neighbors = self.get_neighbors(car, neighbor_count)
-            car.adjust_behavior(neighbors, self.walls, wall_radius, separation_radius, self.goal)
+            car.adjust_behavior(neighbors, self.walls, wall_radius, separation_radius, self.goal, self.rule_weights)
         for car in self.cars:
             car.update(dt, self.walls)
+        self.determine_collisions()
 
     def get_neighbors(self, car: Car, neighbor_count: int):
         neighbors = [(car, inf)] * neighbor_count
@@ -36,3 +38,29 @@ class World:
                 neighbors.sort(key=itemgetter(1))
                 neighbors.pop()
         return neighbors
+
+    def determine_collisions(self):
+        collision_count = 0
+        car_count = len(self.cars)
+        car_length = self.cars[0].length
+        for i in range(car_count):
+            for j in range(i + 1, car_count):
+                car1 = self.cars[i]
+                car2 = self.cars[j]
+                x_dif = car1.x - car2.x
+                y_dif = car1.y - car2.y
+                distance = sqrt(x_dif ** 2 + y_dif ** 2)
+                if car2 in car1.overlapping_cars:
+                    if distance > car_length:
+                        car1.overlapping_cars.remove(car2)
+                elif distance < car_length:
+                    car1.overlapping_cars.append(car2)
+                    collision_count += 1
+
+        print(collision_count)
+
+
+
+
+
+
