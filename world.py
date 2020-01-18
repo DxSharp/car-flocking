@@ -16,16 +16,26 @@ class World:
         self.height: int = height
         self.cars: List[Car] = []
         self.walls: List[Wall] = []
-        self.goal: Goal = Goal(0.0, 0.0)
+        self.goal: Goal = Goal(0.0, 0.0, False)
         self.rule_weights: List[float] = [0, 0, 0, 0, 0]
+        self.collision_distribution: List[int] = []
+        self.flocking_performance_distribution: List[float] = []
+        self.total_collisions: int = 0
 
-    def update(self, dt: float, neighbor_count: int, wall_radius: float, separation_radius: float):
+    def update(self, dt: float, neighbor_count: int, wall_radius: float, separation_radius: float) -> bool:
         for car in self.cars:
             neighbors = self.get_neighbors(car, neighbor_count)
             car.adjust_behavior(neighbors, self.walls, wall_radius, separation_radius, self.goal, self.rule_weights)
         for car in self.cars:
             car.update(dt, self.walls)
+
+        all_finished = True
+        for car in self.cars:
+            all_finished = all_finished and car.goal_reached
+
         self.determine_collisions()
+        self.flocking_performance_distribution.append(self.flocking_performance())
+        return all_finished
 
     def get_neighbors(self, car: Car, neighbor_count: int):
         neighbors = [(car, inf)] * neighbor_count
@@ -56,11 +66,23 @@ class World:
                 elif distance < car_length:
                     car1.overlapping_cars.append(car2)
                     collision_count += 1
+        self.total_collisions += collision_count
+        self.collision_distribution.append(collision_count)
 
-        print(collision_count)
+    def flocking_performance(self):
+        sum_x = 0
+        sum_y = 0
+        for car in self.cars:
+            sum_x += car.x
+            sum_y += car.y
+        avg_x = sum_x / len(self.cars)
+        avg_y = sum_y / len(self.cars)
 
-
-
-
-
-
+        sum_distance = 0
+        for car in self.cars:
+            x_dif = car.x - avg_x
+            y_dif = car.y - avg_y
+            distance = x_dif ** 2 + y_dif ** 2
+            sum_distance += distance
+        avg_distance = sum_distance / len(self.cars)
+        return avg_distance

@@ -2,7 +2,7 @@ from typing import List, Tuple
 
 from goal import Goal
 from vector import Vector
-from math import radians, tan, sqrt, degrees
+from math import radians, tan, sqrt, degrees, inf
 
 from wall import Wall
 
@@ -18,7 +18,7 @@ class Car:
 
         self.x: float = x
         self.y: float = y
-        self.direction = Vector.from_degrees(angle)
+        self.direction: Vector = Vector.from_degrees(angle)
         self.steering_angle: float = radians(steering_angle)
 
         self.velocity: float = velocity
@@ -32,6 +32,8 @@ class Car:
         self.max_steering_change: float = radians(max_steering_change)
 
         self.overlapping_cars: List[Car] = []
+
+        self.goal_reached: bool = False
 
         # TODO: Remove code below this
         self.vector = Vector()
@@ -57,20 +59,30 @@ class Car:
         self.velocity = min(self.max_velocity, new_velocity)
         self.steering_angle = max(-self.max_steering_angle, min(new_steering_angle, self.max_steering_angle))
 
-    def adjust_behavior(self, neighbors: List[Tuple['Car', float]], walls: List[Wall],
-                        wall_radius: float, separation_radius: float, goal: Goal, rule_weights: List[float]):
-        wall_force = self.wall_avoidance(walls, wall_radius)
+    def adjust_behavior(self, neighbors: List[Tuple['Car', float]], walls: List[Wall], wall_radius: float,
+                        separation_radius: float, goal: Goal, rule_weights: List[float]):
         separation_force = self.separation(neighbors, separation_radius)
         alignment_force = self.alignment(neighbors)
         cohesion_force = self.cohesion(neighbors)
-        goal_force = self.goal_force(goal)
+
+        if goal.active:
+            goal_force = self.goal_force(goal)
+            if goal_force.get_length() < self.length:
+                self.goal_reached = True
+        else:
+            goal_force = Vector(0.0, 0.0)
+
+        if not self.goal_reached:
+            for neighbor in neighbors:
+                self.goal_reached = self.goal_reached or neighbor[0].goal_reached
+
+        wall_force = self.wall_avoidance(walls, wall_radius)
 
         if wall_force != Vector(0.0, 0.0) and rule_weights[4] > 0:
             self.vector = wall_force * rule_weights[4]
         else:
             self.vector = separation_force * rule_weights[0] + alignment_force * rule_weights[1] + \
                           cohesion_force * rule_weights[2] + goal_force * rule_weights[3]
-
 
         steering_direction = self.direction.rotate_radians(self.steering_angle)
 
@@ -87,6 +99,7 @@ class Car:
             self.steering_change = -self.max_steering_change
         else:
             self.steering_change = self.max_steering_change
+
 
     def goal_force(self, goal: Goal):
         return Vector(goal.x - self.x, goal.y - self.y)
@@ -114,14 +127,27 @@ class Car:
         return resulting_force
 
     def separation(self, neighbors: List[Tuple['Car', float]], separation_radius: float) -> Vector:
+        # resulting_force = Vector()
+        # for neighbor in neighbors:
+        #     distance = neighbor[1]
+        #     if distance < separation_radius:
+        #         n = neighbor[0]
+        #         separation_vector = Vector(self.x - n.x, self.y - n.y)
+        #         separation_force = separation_vector.change_length(separation_radius - distance)
+        #         resulting_force += separation_force
+        # return resulting_force
+
         resulting_force = Vector()
         for neighbor in neighbors:
             distance = neighbor[1]
-            if distance < separation_radius:
-                n = neighbor[0]
-                separation_vector = Vector(self.x - n.x, self.y - n.y)
-                separation_force = separation_vector.change_length(separation_radius - distance)
-                resulting_force += separation_force
+            n = neighbor[0]
+            separation_vector = Vector(self.x - n.x, self.y - n.y)
+            if distance == 0:
+                separation_length = inf
+            else:
+                separation_length = 1 / distance
+            separation_force = separation_vector.change_length(separation_length)
+            resulting_force += separation_force
         return resulting_force
 
     @staticmethod
