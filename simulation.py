@@ -11,7 +11,7 @@ NEW_STUFF = False
 
 if not NEW_STUFF:
 
-    world = load_scenario(goal_scenario, [243, 27, 9, 0.4, 0], CAR_COUNT, CAR_MAX_VELOCITY)
+    world = load_scenario(open_scenario, [243, 27, 9, 0.4, 0], CAR_COUNT, CAR_MAX_VELOCITY)
 
     pygame.init()
     screen = pygame.display.set_mode((WORLD_WIDTH * PIXEL_METER_RATIO, WORLD_HEIGHT * PIXEL_METER_RATIO))
@@ -36,7 +36,7 @@ if not NEW_STUFF:
 
         if step_counter > STEPS_PER_SECOND * 2:
             world.count_collisions = True
-        running = not world.update(dt, NEIGHBOR_COUNT, WALL_RADIUS, SEPARATION_RADIUS)
+        running = running and not world.update(dt, NEIGHBOR_COUNT, WALL_RADIUS, SEPARATION_RADIUS)
 
         draw_world(world, WORLD_COLOR, WALL_COLOR, GOAL_COLOR, VECTOR_COLOR, pygame.image.load(CAR_IMAGE_PATH),
                    screen, PIXEL_METER_RATIO)
@@ -70,11 +70,12 @@ else:
 
     def conditional_simulation(scenario: Callable[[], World], weights: List[float], simulation_amount: int,
                                car_count: int, car_velocity: float) -> Tuple[
-        List[List[int]], List[List[float]], float, float]:
+        List[List[int]], List[List[float]], float, float, List[float]]:
         collision_distributions = []
         flocking_distributions = []
         collision_sum = 0
         steps_sum = 0
+        goal_step_distribution = []
         for i in range(simulation_amount):
             start_time = time.time()
             world = load_scenario(scenario, weights, car_count, car_velocity)
@@ -86,6 +87,7 @@ else:
                 step_counter += 1
 
             steps_sum += step_counter
+            goal_step_distribution.append(step_counter)
 
             step_goal = SIMULATION_TIME * STEPS_PER_SECOND
             step_counter = 0
@@ -100,34 +102,110 @@ else:
             collision_sum += world.total_collisions
 
             stop_time = time.time()
-            print("Goal Weight", weights[3], "| Simulation Number", i + 1, "| Time Taken", stop_time - start_time)
+            print("Car Velocity", car_velocity, "| Simulation Number", i + 1, "| Time Taken", stop_time - start_time)
         return collision_distributions, flocking_distributions, collision_sum / simulation_amount, \
-               steps_sum / simulation_amount
+               steps_sum / simulation_amount, goal_step_distribution
 
-    file1 = open("collisions_time_goal.txt", "w+")
-    file2 = open("flocking_time_goal.txt", "w+")
 
-    c, f = run_simulation(open_scenario, [OPTIMIZED_WEIGHTS[0], OPTIMIZED_WEIGHTS[1], OPTIMIZED_WEIGHTS[2],
-                                          OPTIMIZED_WEIGHTS[3], 0], 1, CAR_COUNT, CAR_MAX_VELOCITY)
+    # file1 = open("collisions_velocity_goal.txt", "w+")
+    # file2 = open("flocking_velocity_goal.txt", "w+")
+    # file3 = open("steps_velocity_goal.txt", "w+")
 
-    for i in c:
-        for j in i:
-            file1.write(str(j))
-            file1.write('\t')
-        file1.write('\n')
+    # for cv in range(3, 33, 3):
+    #     c, f, x, y, g = conditional_simulation(goal_scenario, [OPTIMIZED_WEIGHTS[0], OPTIMIZED_WEIGHTS[1],
+    #                                                            OPTIMIZED_WEIGHTS[2], OPTIMIZED_WEIGHTS[3], 0],
+    #                                            50, CAR_COUNT, cv)
+    #
+    #     for i in c:
+    #         for j in i:
+    #             file1.write(str(j))
+    #             file1.write('\t')
+    #         file1.write('\n')
+    #
+    #     for i in f:
+    #         for j in i:
+    #             file2.write(str(j))
+    #             file2.write('\t')
+    #         file2.write('\n')
+    #
+    #     for i in g:
+    #         file3.write(str(i))
+    #         file3.write('\t')
+    #
+    #     file1.write('\n')
+    #     file2.write('\n')
+    #     file3.write('\n')
+    #     file3.write('\n')
+    #
+    # file1.close()
+    # file2.close()
+    # file3.close()
 
-    for i in f:
-        for j in i:
-            file2.write(str(j))
-            file2.write('\t')
-        file2.write('\n')
+    # file1 = open("collisions_car_count_goal.txt", "w+")
+    # file2 = open("flocking_car_count_goal.txt", "w+")
+    # file3 = open("steps_car_count_goal.txt", "w+")
+    #
+    # for cc in range(10, 110, 10):
+    #     c, f, x, y, g = conditional_simulation(goal_scenario, [OPTIMIZED_WEIGHTS[0], OPTIMIZED_WEIGHTS[1],
+    #                                                            OPTIMIZED_WEIGHTS[2], OPTIMIZED_WEIGHTS[3], 0],
+    #                                            20, cc, CAR_MAX_VELOCITY)
+    #
+    #     for i in c:
+    #         for j in i:
+    #             file1.write(str(j))
+    #             file1.write('\t')
+    #         file1.write('\n')
+    #
+    #     for i in f:
+    #         for j in i:
+    #             file2.write(str(j))
+    #             file2.write('\t')
+    #         file2.write('\n')
+    #
+    #     for i in g:
+    #         file3.write(str(i))
+    #         file3.write('\t')
+    #
+    #     file1.write('\n')
+    #     file2.write('\n')
+    #     file3.write('\n')
+    #     file3.write('\n')
+    #
+    # file1.close()
+    # file2.close()
+    # file3.close()
 
-    file1.write('\n')
-    file2.write('\n')
+    # file1 = open("collisions_time_goal.txt", "w+")
+    # file2 = open("flocking_time_goal.txt", "w+")
+    # file3 = open("steps_taken_goal.txt", "w+")
 
-    file1.close()
-    file2.close()
-
+    # c, f, x, y, g = conditional_simulation(goal_scenario, [OPTIMIZED_WEIGHTS[0], OPTIMIZED_WEIGHTS[1],
+    #                                                        OPTIMIZED_WEIGHTS[2], OPTIMIZED_WEIGHTS[3], 0],
+    #                                        100, CAR_COUNT, CAR_MAX_VELOCITY)
+    #
+    # for i in c:
+    #     for j in i:
+    #         file1.write(str(j))
+    #         file1.write('\t')
+    #     file1.write('\n')
+    #
+    # for i in f:
+    #     for j in i:
+    #         file2.write(str(j))
+    #         file2.write('\t')
+    #     file2.write('\n')
+    #
+    # for i in g:
+    #     file3.write(str(i))
+    #     file3.write('\t')
+    #
+    # file1.write('\n')
+    # file2.write('\n')
+    # file3.write('\n')
+    #
+    # file1.close()
+    # file2.close()
+    # file3.close()
 
     # possible_weights = [0.1, 0.2, 0.4, 0.8, 1, 2, 4, 8]
     #

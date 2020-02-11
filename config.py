@@ -37,7 +37,7 @@ OPTIMIZED_WEIGHTS = [243, 27, 9, 0.4]
 """
 World (Model)
 """
-WORLD_WIDTH = 300
+WORLD_WIDTH = 100
 WORLD_HEIGHT = 100
 
 """
@@ -66,7 +66,7 @@ VIEW CONFIGURATION
 """
 Simulation (View)
 """
-PIXEL_METER_RATIO = 4
+PIXEL_METER_RATIO = 8
 
 """
 World (View)
@@ -122,7 +122,7 @@ def goal_scenario(weights: List[float], car_count: int, car_velocity: float) -> 
         car_angle = randrange(0, 360)
         new_car = Car(CAR_LENGTH, CAR_WIDTH, CAR_WHEELBASE, car_velocity, CAR_MAX_ACCELERATION,
                       CAR_MAX_STEERING_ANGLE, CAR_MAX_STEERING_CHANGE, x=car_x, y=car_y,
-                      acceleration=1, steering_angle=0, angle=car_angle)
+                      acceleration=2, steering_angle=0, angle=car_angle)
         world.cars.append(new_car)
 
     world.rule_weights = weights
