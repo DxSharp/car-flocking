@@ -1,15 +1,43 @@
+"""This module contains functionality to represent a wall that cars should steer away from.
+
+A wall is represented as a line in the world. It is represented by two pairs of x and y
+positions, one for each line end. A vector perpendicular to the wall towards a specified
+point can be determined. This vector can be used to determine the steering force from the
+wall.
+
+"""
+
 from vector import Vector
 
 
 class Wall:
 
     def __init__(self, x1: float, y1: float, x2: float, y2: float):
+        """Initializes a new wall object
+
+        Args:
+            x1 (float): The x position of the first line end point.
+            y1 (float): The y position of the first line end point.
+            x2 (float): The x position of the second line end point.
+            y2 (float): The y position of the second line end point.
+
+        """
         self.x1: float = x1
         self.y1: float = y1
         self.x2: float = x2
         self.y2: float = y2
 
     def perpendicular_vector(self, x: float, y: float) -> Vector:
+        """Determines a vector perpendicular to the wall towards the point specified by the arguments.
+
+        Args:
+            x (float): The x position of the vector head.
+            y (float): The y position of the vector head.
+
+        Returns:
+            Vector: The perpendicular vector as described, or a zero vector if this vector does not exist.
+
+        """
         x_dif = self.x2 - self.x1
         y_dif = self.y2 - self.y1
         if x_dif == 0:
