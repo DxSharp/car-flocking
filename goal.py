@@ -9,7 +9,7 @@ activated or deactivated. Cars will only flock towards a goal if it is active.
 class Goal:
 
     def __init__(self, x: float, y: float, active: bool):
-        """Initializes a new goal object
+        """Initializes a new goal object.
 
         Args:
             x (float): The x position of the goal.

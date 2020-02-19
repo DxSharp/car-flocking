@@ -13,7 +13,7 @@ from vector import Vector
 class Wall:
 
     def __init__(self, x1: float, y1: float, x2: float, y2: float):
-        """Initializes a new wall object
+        """Initializes a new wall object.
 
         Args:
             x1 (float): The x position of the first line end point.
