@@ -35,6 +35,6 @@ def draw_car(car: Car, image: Surface, vector_color: Color, surface: Surface, pi
 
     car_x = car.x * pixel_meter_ratio
     car_y = surface.get_height() - car.y * pixel_meter_ratio
-    vector_x = (car.x + car.vector.x) * pixel_meter_ratio
-    vector_y = surface.get_height() - (car.y + car.vector.y) * pixel_meter_ratio
+    vector_x = (car.x + car.flocking_vector.x) * pixel_meter_ratio
+    vector_y = surface.get_height() - (car.y + car.flocking_vector.y) * pixel_meter_ratio
     line(surface, vector_color, (car_x, car_y), (vector_x, vector_y), 1)

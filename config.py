@@ -27,10 +27,6 @@ NEIGHBOR_COUNT = 6
 # Amount of seconds to simulate
 SIMULATION_TIME = 30
 
-# Distance to detect walls from
-WALL_RADIUS = 20
-SEPARATION_RADIUS = 20
-
 
 OPTIMIZED_WEIGHTS = [243, 27, 9, 0.4]
 
