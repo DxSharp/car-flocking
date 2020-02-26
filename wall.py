@@ -1,5 +1,7 @@
 """This module contains functionality to represent a wall that cars should steer away from.
 
+TODO: Revise and incorporate into simulation.
+
 A wall is represented as a line in the world. It is represented by two pairs of x and y
 positions, one for each line end. A vector perpendicular to the wall towards a specified
 point can be determined. This vector can be used to determine the steering force from the
