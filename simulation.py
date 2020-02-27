@@ -1,293 +1,127 @@
-import time
-from typing import Tuple
+"""This module contains example code to configure and run simulations.
 
-import pygame
+"""
 
-from config import *
+from random import randrange
+from typing import Dict
+from pygame import Color
+from car import Car
 from goal import Goal
-from world_view import draw_world
+from scenario import Scenario
+from world import World
 
-NEW_STUFF = False
+"""
+-------------------
+MODEL CONFIGURATION
+-------------------
+"""
 
-if not NEW_STUFF:
+"""
+Simulation (Model)
+"""
+STEPS_PER_SECOND = 50
 
-    world = load_scenario(open_scenario, [243, 27, 9, 0.4, 0], CAR_COUNT, CAR_MAX_VELOCITY)
+CAR_COUNT = 25
 
-    pygame.init()
-    screen = pygame.display.set_mode((WORLD_WIDTH * PIXEL_METER_RATIO, WORLD_HEIGHT * PIXEL_METER_RATIO))
+NEIGHBOR_COUNT = 6
 
-    running = True
-    step_goal = SIMULATION_TIME * STEPS_PER_SECOND
-    step_counter = 0
-    clock = pygame.time.Clock()
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
-                goal_x = mouse_pos[0] / PIXEL_METER_RATIO
-                goal_y = WORLD_HEIGHT - mouse_pos[1] / PIXEL_METER_RATIO
+SIMULATION_TIME = 30
 
-                world.goal = Goal(goal_x, goal_y, True)
-        dt = clock.get_time() / 1000.0
-        if dt > 1.0 / (STEPS_PER_SECOND - 1):
-            print("Not enough time to compute the amount of steps per second in real-time")
+OPTIMIZED_WEIGHTS = [243, 27, 9, 0.4]
 
-        if step_counter > STEPS_PER_SECOND * 2:
-            world.count_collisions = True
-        running = running and not world.update(dt, NEIGHBOR_COUNT, WALL_RADIUS, SEPARATION_RADIUS)
+"""
+World (Model)
+"""
+WORLD_WIDTH = 300
 
-        draw_world(world, WORLD_COLOR, WALL_COLOR, GOAL_COLOR, VECTOR_COLOR, pygame.image.load(CAR_IMAGE_PATH),
-                   screen, PIXEL_METER_RATIO)
+WORLD_HEIGHT = 100
 
-        pygame.display.update()
-        step_counter += 1
-        clock.tick_busy_loop(STEPS_PER_SECOND)
-    print(world.flocking_performance_distribution)
+"""
+Car (Model)
+"""
+CAR_LENGTH = 4.9
 
-else:
+CAR_WIDTH = 1.8
 
-    def run_simulation(scenario: Callable[[], World], weights: List[float], simulation_amount: int, car_count: int,
-                       car_velocity: float) -> Tuple[List[List[int]], List[List[float]]]:
-        collision_distributions = []
-        flocking_distributions = []
-        for i in range(simulation_amount):
-            start_time = time.time()
-            world = load_scenario(scenario, weights, car_count, car_velocity)
-            step_goal = SIMULATION_TIME * STEPS_PER_SECOND
-            step_counter = 0
-            while step_counter < step_goal:
-                dt = 1.0 / STEPS_PER_SECOND
-                world.update(dt, NEIGHBOR_COUNT, WALL_RADIUS, SEPARATION_RADIUS)
-                step_counter += 1
-            collision_distributions.append(world.collision_distribution)
-            flocking_distributions.append(world.flocking_performance_distribution)
-            stop_time = time.time()
-            print("Car Velocity", car_velocity, "| Simulation Number", i + 1, "| Time Taken", stop_time - start_time)
-        return collision_distributions, flocking_distributions
+CAR_WHEELBASE = 2.8
 
+CAR_MAX_ACCELERATION = 5.0
 
-    def conditional_simulation(scenario: Callable[[], World], weights: List[float], simulation_amount: int,
-                               car_count: int, car_velocity: float) -> Tuple[
-        List[List[int]], List[List[float]], float, float, List[float]]:
-        collision_distributions = []
-        flocking_distributions = []
-        collision_sum = 0
-        steps_sum = 0
-        goal_step_distribution = []
-        for i in range(simulation_amount):
-            start_time = time.time()
-            world = load_scenario(scenario, weights, car_count, car_velocity)
-            goal_reached = False
-            step_counter = 0
-            while not goal_reached:
-                dt = 1.0 / STEPS_PER_SECOND
-                goal_reached = world.update(dt, NEIGHBOR_COUNT, WALL_RADIUS, SEPARATION_RADIUS)
-                step_counter += 1
+CAR_MAX_VELOCITY = 5
 
-            steps_sum += step_counter
-            goal_step_distribution.append(step_counter)
+CAR_MAX_STEERING_ANGLE = 37.0
 
-            step_goal = SIMULATION_TIME * STEPS_PER_SECOND
-            step_counter = 0
-            while step_counter < step_goal:
-                dt = 1.0 / STEPS_PER_SECOND
-                world.update(dt, NEIGHBOR_COUNT, WALL_RADIUS, SEPARATION_RADIUS)
-                step_counter += 1
+CAR_MAX_STEERING_CHANGE = CAR_MAX_STEERING_ANGLE
 
-            collision_distributions.append(world.collision_distribution)
-            flocking_distributions.append(world.flocking_performance_distribution)
+"""
+------------------
+VIEW CONFIGURATION
+------------------
+"""
 
-            collision_sum += world.total_collisions
+"""
+Simulation (View)
+"""
+PIXEL_METER_RATIO = 8
 
-            stop_time = time.time()
-            print("Car Velocity", car_velocity, "| Simulation Number", i + 1, "| Time Taken", stop_time - start_time)
-        return collision_distributions, flocking_distributions, collision_sum / simulation_amount, \
-               steps_sum / simulation_amount, goal_step_distribution
+"""
+World (View)
+"""
+WORLD_COLOR = Color('white')
+
+"""
+Wall (View)
+"""
+WALL_COLOR = Color('black')
+
+"""
+Goal (View)
+"""
+GOAL_COLOR = Color('blue')
+
+"""
+Car (View)
+"""
+CAR_IMAGE_PATH = "car.png"
+
+"""
+Vector (View)
+"""
+VECTOR_COLOR = Color('red')
 
 
-    # file1 = open("collisions_velocity_goal.txt", "w+")
-    # file2 = open("flocking_velocity_goal.txt", "w+")
-    # file3 = open("steps_velocity_goal.txt", "w+")
+def open_scenario(simulation_variables: Dict) -> World:
+    world = World(WORLD_WIDTH, WORLD_HEIGHT)
 
-    # for cv in range(3, 33, 3):
-    #     c, f, x, y, g = conditional_simulation(goal_scenario, [OPTIMIZED_WEIGHTS[0], OPTIMIZED_WEIGHTS[1],
-    #                                                            OPTIMIZED_WEIGHTS[2], OPTIMIZED_WEIGHTS[3], 0],
-    #                                            50, CAR_COUNT, cv)
-    #
-    #     for i in c:
-    #         for j in i:
-    #             file1.write(str(j))
-    #             file1.write('\t')
-    #         file1.write('\n')
-    #
-    #     for i in f:
-    #         for j in i:
-    #             file2.write(str(j))
-    #             file2.write('\t')
-    #         file2.write('\n')
-    #
-    #     for i in g:
-    #         file3.write(str(i))
-    #         file3.write('\t')
-    #
-    #     file1.write('\n')
-    #     file2.write('\n')
-    #     file3.write('\n')
-    #     file3.write('\n')
-    #
-    # file1.close()
-    # file2.close()
-    # file3.close()
+    for i in range(simulation_variables['car_count']):
+        car_x = randrange(1, WORLD_WIDTH)
+        car_y = randrange(1, WORLD_HEIGHT)
+        car_angle = randrange(0, 360)
+        new_car = Car(CAR_LENGTH, CAR_WIDTH, CAR_WHEELBASE, CAR_MAX_VELOCITY, CAR_MAX_ACCELERATION,
+                      CAR_MAX_STEERING_ANGLE, CAR_MAX_STEERING_CHANGE, x=car_x, y=car_y,
+                      acceleration=2, steering_angle=0, angle=car_angle)
+        world.cars.append(new_car)
 
-    # file1 = open("collisions_car_count_goal.txt", "w+")
-    # file2 = open("flocking_car_count_goal.txt", "w+")
-    # file3 = open("steps_car_count_goal.txt", "w+")
-    #
-    # for cc in range(10, 110, 10):
-    #     c, f, x, y, g = conditional_simulation(goal_scenario, [OPTIMIZED_WEIGHTS[0], OPTIMIZED_WEIGHTS[1],
-    #                                                            OPTIMIZED_WEIGHTS[2], OPTIMIZED_WEIGHTS[3], 0],
-    #                                            20, cc, CAR_MAX_VELOCITY)
-    #
-    #     for i in c:
-    #         for j in i:
-    #             file1.write(str(j))
-    #             file1.write('\t')
-    #         file1.write('\n')
-    #
-    #     for i in f:
-    #         for j in i:
-    #             file2.write(str(j))
-    #             file2.write('\t')
-    #         file2.write('\n')
-    #
-    #     for i in g:
-    #         file3.write(str(i))
-    #         file3.write('\t')
-    #
-    #     file1.write('\n')
-    #     file2.write('\n')
-    #     file3.write('\n')
-    #     file3.write('\n')
-    #
-    # file1.close()
-    # file2.close()
-    # file3.close()
+    return world
 
-    # file1 = open("collisions_time_goal.txt", "w+")
-    # file2 = open("flocking_time_goal.txt", "w+")
-    # file3 = open("steps_taken_goal.txt", "w+")
 
-    # c, f, x, y, g = conditional_simulation(goal_scenario, [OPTIMIZED_WEIGHTS[0], OPTIMIZED_WEIGHTS[1],
-    #                                                        OPTIMIZED_WEIGHTS[2], OPTIMIZED_WEIGHTS[3], 0],
-    #                                        100, CAR_COUNT, CAR_MAX_VELOCITY)
-    #
-    # for i in c:
-    #     for j in i:
-    #         file1.write(str(j))
-    #         file1.write('\t')
-    #     file1.write('\n')
-    #
-    # for i in f:
-    #     for j in i:
-    #         file2.write(str(j))
-    #         file2.write('\t')
-    #     file2.write('\n')
-    #
-    # for i in g:
-    #     file3.write(str(i))
-    #     file3.write('\t')
-    #
-    # file1.write('\n')
-    # file2.write('\n')
-    # file3.write('\n')
-    #
-    # file1.close()
-    # file2.close()
-    # file3.close()
+def goal_scenario(simulation_variables: Dict) -> World:
+    world = World(WORLD_WIDTH, WORLD_HEIGHT)
 
-    # possible_weights = [0.1, 0.2, 0.4, 0.8, 1, 2, 4, 8]
-    #
-    # collision_results = []
-    # steps_results = []
-    # for w in possible_weights:
-    #     x, y, c, s = conditional_simulation(goal_scenario,
-    #                                         [OPTIMIZED_WEIGHTS[0], OPTIMIZED_WEIGHTS[1], OPTIMIZED_WEIGHTS[2],
-    #                                          w, 0], 50, CAR_COUNT, CAR_MAX_VELOCITY)
-    #     collision_results.append(c)
-    #     steps_results.append(s)
-    #
-    # print(collision_results)
-    # print(steps_results)
+    for i in range(CAR_COUNT):
+        car_x = randrange(1, WORLD_WIDTH / 3)
+        car_y = randrange(1, WORLD_HEIGHT)
+        car_angle = randrange(0, 360)
+        new_car = Car(CAR_LENGTH, CAR_WIDTH, CAR_WHEELBASE, CAR_MAX_VELOCITY, CAR_MAX_ACCELERATION,
+                      CAR_MAX_STEERING_ANGLE, CAR_MAX_STEERING_CHANGE, x=car_x, y=car_y,
+                      acceleration=2, steering_angle=0, angle=car_angle)
+        world.cars.append(new_car)
 
-    # file1 = open("collisions_velocity.txt", "w+")
-    # file2 = open("flocking_velocity.txt", "w+")
-    #
-    # for cv in range(3, 33, 3):
-    #     c, f = run_simulation(open_scenario, [OPTIMIZED_WEIGHTS[0], OPTIMIZED_WEIGHTS[1], OPTIMIZED_WEIGHTS[2], 0, 0],
-    #                           50, CAR_COUNT, cv)
-    #
-    #     for i in c:
-    #         for j in i:
-    #             file1.write(str(j))
-    #             file1.write('\t')
-    #         file1.write('\n')
-    #
-    #     for i in f:
-    #         for j in i:
-    #             file2.write(str(j))
-    #             file2.write('\t')
-    #         file2.write('\n')
-    #
-    #     file1.write('\n')
-    #     file2.write('\n')
-    #
-    # file1.close()
-    # file2.close()
+    world.goal = Goal(WORLD_WIDTH * 5 / 6, WORLD_HEIGHT / 2, True)
 
-    # file1 = open("collisions_car_count.txt", "w+")
-    # file2 = open("flocking_car_count.txt", "w+")
-    #
-    # for cc in range(10, 110, 10):
-    #     c, f = run_simulation(open_scenario, [OPTIMIZED_WEIGHTS[0], OPTIMIZED_WEIGHTS[1], OPTIMIZED_WEIGHTS[2], 0, 0],
-    #                           50, cc)
-    #
-    #     for i in c:
-    #         for j in i:
-    #             file1.write(str(j))
-    #             file1.write('\t')
-    #         file1.write('\n')
-    #
-    #     for i in f:
-    #         for j in i:
-    #             file2.write(str(j))
-    #             file2.write('\t')
-    #         file2.write('\n')
-    #
-    #     file1.write('\n')
-    #     file2.write('\n')
-    #
-    # file1.close()
-    # file2.close()
+    return world
 
-    # start = time.time()
-    # c, f = run_simulation(open_scenario, [OPTIMIZED_WEIGHTS[0], OPTIMIZED_WEIGHTS[1], OPTIMIZED_WEIGHTS[2], 0, 0], 100)
-    # stop = time.time()
-    # print(stop - start)
-    #
-    # file1 = open("collisions_time.txt", "w+")
-    #
-    # for i in c:
-    #     for j in i:
-    #         file1.write(str(j))
-    #         file1.write('\t')
-    #     file1.write('\n')
-    #
-    # file2 = open("flocking_time.txt", "w+")
-    #
-    # for i in f:
-    #     for j in i:
-    #         file2.write(str(j))
-    #         file2.write('\t')
-    #     file2.write('\n')
+
+s = Scenario(goal_scenario, STEPS_PER_SECOND, NEIGHBOR_COUNT, OPTIMIZED_WEIGHTS, 10)
+
+s.simulate_visual(PIXEL_METER_RATIO, WORLD_COLOR, GOAL_COLOR, VECTOR_COLOR, CAR_IMAGE_PATH)

@@ -38,7 +38,8 @@ class World:
         Args:
             dt (float): The amount of time in seconds to progress the simulation.
             neighbor_count (int): The amount of cars to incorporate into the neighborhood of each cars.
-            rule_weights (List[float]): A list with the weights of each flocking force.
+            rule_weights (List[float]): A list with the weights of each flocking force. The respective flocking forces
+                are [Separation, Alignment, Cohesion, Goal].
 
         Returns:
             bool: True if all cars have reached the goal as a result of this update, False otherwise.

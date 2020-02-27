@@ -97,7 +97,8 @@ class Car:
             neighbors (List[Tuple[Car, float]]): A list of neighboring cars and the distance between this car and each
                 respective neighboring car.
             goal (Goal): The goal that this car should steer towards.
-            rule_weights (List[float]): A list with the weights of each flocking force.
+            rule_weights (List[float]): A list with the weights of each flocking force. The respective flocking forces
+                are [Separation, Alignment, Cohesion, Goal].
 
         """
         if goal.active:
